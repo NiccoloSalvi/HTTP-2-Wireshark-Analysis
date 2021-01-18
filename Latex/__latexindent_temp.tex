@@ -1,0 +1,576 @@
+\documentclass[a4paper,11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[italian]{babel}
+\usepackage[T1]{fontenc}
+\usepackage{longtable, xcolor}
+
+\title{HTTP/2 Protocol}
+\author{Salvi Niccolò}
+\date{\today}
+
+\begin{document}
+\setlength{\parindent}{4em}
+\maketitle
+\tableofcontents
+\pagebreak
+\section{HTTP Protocol}
+\subsection{Introduzione}
+\subsubsection{Definizione di Protocollo}
+Un \textbf{protocollo} è un insieme di regole che permette di trovare uno standard di comunicazione tra i diversi computers attraverso la rete\footnote{Per rete s’intende l'insieme di due o più calcolatori connessi tra di loro ed in grado di condividersi informazioni.}.\newline
+I calcolatori, per potersi scambiare informazioni, devono predisporre di protocolli che permettano loro di attribuire ad un determinato comando un significato univoco per tutti.\bigbreak
+\noindent I punti principali, descritti da un protocollo, sono i seguenti:
+\begin{itemize}
+    \item Il \textit{formato} che il \textit{messaggio} scambiato deve avere
+    \item Il \textit{modo} in cui i computers devono scambiarsi i messaggi
+\end{itemize}
+\subsubsection{World Wide Web}
+Il \textbf{WWW} si interfaccia con un vasto numero di server, che colloquiano tra di loro attraverso protocolli standard \textit{TCP/IP} ed altri, che si servono di altrettanti protocolli di livello superiore.\newline
+Tutti i clients ed i servers web devono essere in grado di gestire il protocollo HTTP, affinché possano scambiarsi i documenti di ipertesto.
+\subsubsection{Uniform Resource Locator}
+Ogni risorsa disponibile sulla rete deve essere identificabile univocamente, tramite indirizzi \textbf{URL}.\bigbreak
+\centerline{\emph{protocollo://server:socket/pathname}}
+\begin{description}
+    \item[Protocollo:] protocollo utilizzato
+    \item[Server:] indirizzo IP (numerico o logico) del calcolatore che detiene la risorsa
+    \item[Porta:] porta a cui il protocollo fa riferimento
+    \item[Pathname:] percorso completo del file cercato
+\end{description}
+\subsection{Definizione}
+Si tratta di un protocollo \textit{stateless\footnote{La scelta di un protocollo che non conservi memoria è stata presa affinché fosse possibile passare velocemente da un server all’altro, tramite links ipertestuali.}} che permette la ricerca, il recupero dell’informazione in maniera veloce e di seguire eventuali links.\newline
+Per accedere alle informazioni fornite dal server HTTP, è necessario utilizzare un \textit{browser}, che sia in grado di interpretare le informazioni inviate dal server.
+\subsubsection{Caratteristiche}
+Si tratta di un protocollo:
+\begin{itemize}
+    \item \textit{Request-Reply}: ad ogni richiesta del client corrisponde una risposta da parte del server
+    \item \textit{ASCII}: i messaggi\footnote{Per messaggio s’intende la richiesta del client o la risposta. Il corpo del messaggio è costituito dai dati effettivi da trasmettere.} scambiati tra client e server sono sequenze di caratteri ASCII
+\end{itemize}
+\subsection{Request}
+Una volta instaurata una connessione tra il browser ed il server, il client, tramite il protocollo HTTP, effettua la richiesta della risorsa al server.\bigbreak
+\centerline{\textit{Request Line + Header Lines + CRLF (Carriage Return, Line Feed) + Entity Body}}
+\subsubsection{Request Line}
+La \textbf{Request Line} contiene i seguenti elementi:
+\begin{itemize}
+    \item \textit{Method}: metodo che si chiede al server di eseguire
+    \begin{itemize}
+        \item CONNECT
+        \item DELETE
+        \item GET
+        \item HEAD
+        \item OPTIONS
+        \item POST
+        \item PUT
+        \item TRACE
+    \end{itemize}
+    \item \textit{SP}: white space
+    \item \textit{URL}: risorsa su cui applicare la richiesta:
+    \begin{itemize}
+        \item \textit{*}: la richiesta non deve essere applicata ad una particolare risorsa, ma al server stesso
+        \item \textit{AbsoluteUrl}: la richiesta è stata eseguita ad un \textit{proxy} e viene indicato il DNS ed il path della risorsa
+        \item \textit{AbsolutePath}: utile per inoltrare la richiesta ad un server o ad un \textit{gateway}
+    \end{itemize}
+    \item \textit{Version}: versione del protocollo HTTP utilizzato
+\end{itemize}
+\subsubsection{Header Lines}
+Le informazioni contenute negli headers della richiesta comunicano al server ricevente le informazioni addizionali, inerenti alla richiesta ed al client stesso.\bigbreak
+\begin{center}
+    \begin{longtable}{l|p{.6\textwidth}}  
+        Accept & Indicare \textit{media-type} accettati come risposta, i tipi di \textit{MIME} che il client può gestire\footnote{Se la richiesta è priva di questo campo, significa che il client accetta almeno i tipi MIME \textit{text/plain} e \textit{text/html}.}. Se il server non può mandare una risposta adeguata manda uno \textit{Status-Code 406}\\
+        \hline
+        Accept-Charset & Stesso concetto del campo \textit{accept}, inerente ai caratteri\\
+        \hline
+        Accept-Encoding & Stesso concetto del campo \textit{accept}, riferito alle \textit{content-codings} ed indica i processi di codifica che il client può riconoscere nella risposta del server\\
+        \hline
+        Accept-Language & Stesso concetto del campo \textit{accept}, riferito ai \textit{linguaggi naturali} dedicati all’uso umano. Indica in quale lingua si deve comunicare all’utente del client\\
+        \hline
+        Authorization & Mostra permessi del client\\
+        \hline
+        Cache-control & Mostra informazioni sulla cache\\
+        \hline
+        Expect & Quando il client richiede particolari operazioni al server\footnote{Se quest’ultimo non le può supportare, deve restituire l'appropriato \textit{Status-Code}.}\\
+        \hline
+        From & Contiene l'indirizzo email dell’utente per usi umani\footnote{Tale campo non viene fornito senza l’approvazione dell’utente per fini di privacy}\\
+        \hline
+        Host & Specifica \textit{Internet Host} ed il numero della porta attraverso la quale comunicare col server\footnote{Senza la specificazione della porta, viene utilizzata quella di default, porta 80.}\\
+        \hline
+        If-Match & Contiene alcune etichette da applicare all’entità da ottenere per poi permettere al client di effettuare dei confronti e riconoscere questa tra le altre entità che provengono dalla stessa risorsa\\
+        \hline
+        If-Modified-Since & Contiene una data ed indica al server di restituire una data risorsa solo se è stata modificata, altrimenti non c’è la necessità di una nuova trasmissione\footnote{Il server restituisce lo \textit{Status-Code 304} senza trasmettere nessun corpo del messaggio}\\
+        \hline
+        If-None-Match & Il client può verificare che nessuna delle entità ottenute dal server facciano parte di quelle specificate in questo campo\\
+        \hline
+        If-Range & Se un client ha una copia parziale di un’entità nella propria cache, può richiedere la porzione mancante dell’entità con l'utilizzo del metodo \textit{GET}\\
+        \hline
+        If-Unmodified-Since & Contiene una data e se la risorsa specificata non è stata modificata dalla data presente nel campo, il server effettua la risposta normalmente come se questo campo non esistesse, altrimenti restituisce uno \textit{Status-Code 412}\\
+        \hline
+        Max-Forwards & Contiene un numero decimale che indica il rimanente numero di volte che un messaggio può essere inoltrato\\
+        \hline
+        Proxy-Authorization & Contiene parametri che permettono l’autenticazione del client e l'autorizzazione ad operare da parte del proxy in questione\\
+        \hline
+        Range & Il client informa il server di quale range di bytes del corpo dell’entità necessità\\
+        \hline
+        Refer & Specifica URL della risorsa a cui si deve far riferimento e permette al server di generare dei link per la manipolazione efficiente dei dati\\
+        \hline
+        TE & Valori di \textit{transfer coding} accettati nella risposta dal client\footnote{Valori sono usati per indicare il tipo di codifica del corpo del messaggio e per rendere la comunicazione più sicura ed efficiente}\\
+        \hline
+        User-agent & Contiene informazioni riguardanti nome e versione dell’applicativo che svolge la funzione di client\\
+    \end{longtable}
+\end{center}
+\subsection{Response}
+Una volta ricevuta la richiesta, il server risponde con un messaggio\footnote{Il corpo contiene i dati richiesti dal client, ovvero i documenti ipertestuali} di risposta.\bigbreak
+\centerline{\textit{Status-Line + Header lines + CRLF + Entity Body}}
+\subsubsection{Status Line}
+La \textbf{Status Line} è composta dai seguenti elementi:
+\begin{itemize}
+    \item \textit{Version}: versione del protocollo HTTP utilizzato
+    \item \textit{Status Text}: specifica testuale dello stato 
+    \item \textit{Status Code}: codice a 3 cifre che ha la funzione di fornire al client le informazioni di stato, riguardanti l'esito della ricezione della richiesta.\par
+    Il primo digit definisce 5 classi di risposta, mentre gli ultimi due non hanno nessuna categorizzazione:
+    \begin{itemize}
+        \item 1xx: \textit{Informazione} - Richiesta avvenuta e continuo processo
+        \begin{center}
+            \begin{tabular}{c|c}
+                100 & Continue\\
+                \hline
+                101 & Switching Protocols\\
+            \end{tabular}
+        \end{center}
+        \item 2xx: \textit{Successo} - Azione ricevuta, capita ed accettata
+        \begin{center}
+            \begin{tabular}{c|c}
+                200 & OK\\
+                \hline
+                201 & Created\\
+                \hline
+                202 & Accepted\\
+                \hline
+                203 & Non-Authoritative Information\\
+                \hline
+                204 & No Content\\
+                \hline
+                205 & Reset Content\\
+                \hline
+                206 & Partial Content\\
+            \end{tabular}
+        \end{center}
+        \item 3xx: \textit{Ridirezione} - Servono altre informazioni per completare la richiesta
+        \begin{center}
+            \begin{tabular}{c|c}
+                300 & Multiple Choices\\
+                \hline
+                301 & Moved Permanently\\
+                \hline
+                302 & Found\\
+                \hline
+                303 & See Other\\
+                \hline
+                304 & Not Modified\\
+                \hline
+                305 & Use Proxy\\
+                \hline
+                307 & Temporary Redirect\\
+            \end{tabular}
+        \end{center}
+        \item 4xx: \textit{Client Error} - Errori nella richiesta
+        \item \begin{center}
+        \item 
+            \begin{tabular}{c|c}
+                400 & Bad Request\\
+                \hline
+                401 & Unauthorized\\
+                \hline
+                402 & Payment Required\\
+                \hline
+                403 & Forbidden\\
+                \hline
+                404 & Not Found\\
+                \hline
+                405 & Method Not Allowed\\
+                \hline
+                406 & Not Acceptable\\
+                \hline
+                407 & Proxy Authentication Required\\
+                \hline
+                408 & Request Time-out\\
+                \hline
+                409 & Conflict\\
+                \hline
+                410 & Gone\\
+                \hline
+                411 & Length Required\\
+                \hline
+                412 & Precondition Failed\\
+                \hline
+                413 & Request Entity Too Large\\
+                \hline
+                414 & Request-URI Too Large\\
+                \hline
+                415 & Unsupported Media Type\\
+                \hline
+                416 & Requested range not satisfiable\\
+                \hline
+                417 & Expectation Failed\\
+            \end{tabular}
+        \end{center}
+        \item 5xx: \textit{Server Error} - Fallimento del server
+        \begin{center}
+            \begin{tabular}{c|c}
+                500 & Internal Server Error\\
+                \hline
+                501 & Not Implemented\\
+                \hline
+                502 & Bad Gateway\\
+                \hline
+                503 & Service Unavailable\\
+                \hline
+                504 & Gateway Time-out\\
+                \hline
+                505 & HTTP Version not supported
+            \end{tabular}
+        \end{center}
+    \end{itemize}
+\end{itemize}
+\subsubsection{Header Lines}
+Questi campi servono per passare al client ulteriori informazioni che non possono risiedere nello \textit{Status-Code}.\bigbreak
+\begin{center}
+    \begin{tabular}{l|p{.6\textwidth}}
+        Accept-Ranges & Ranges accettati e computati\\
+        \hline
+        Age & Intero positivo che indica il tempo, in secondi, trascorso da quando il server ha inviato la risposta\\  
+        \hline
+        Etag & Valori di alcune etichette applicata all’entità restituita\\
+        \hline
+        Location & Indica al ricevente di ridirezionare la richiesta ad una locazione diversa da quella specifica dal URL\\
+        \hline
+        Proxy-Authenticate & Serie di parametri e schemi di autenticazione del proxy emerso dall URL\footnote{Usato quando c’è la necessità che il proxy venga riconosciuto}.\\
+        \hline
+        Retry-After & Indica quanto tempo deve attendere il client prima di rieffettuare la richiesta, quando il servizio non è al momento disponibile\\
+        \hline
+        Server & Parametri che specificano il software utilizzato dal server\\
+        \hline
+        WWW.Authenticate & Parametri per l’autenticazione del URL
+    \end{tabular}
+\end{center}
+\subsection{Definizione Metodi}
+\subsubsection{CONNECT}
+Usato per instaurare una semplice connessione con un proxy.
+\subsubsection{DELETE}
+Richiede che il server ricevente elimini la risorsa specifica dall’URL, anche se non vi è nessuna garanzia che l’operazione vada a buon fine.
+\subsubsection{GET}
+Tende di recuperare le informazione localizzate da URL.
+\begin{itemize}
+    \item GET per risorsa statica --> \textit{GET /foo.html}
+    \item GET per risorsa dinamica --> \textit{GET /cgi-bin/query?q=foo}
+\end{itemize}
+Si tratta di un metodo \textit{sicuro} ed \textit{idempotente} e può essere:
+\begin{itemize}
+    \item \textit{Assoluto}: risorsa viene richiesta senza altre specificazioni
+    \item \textit{Condizionale}: risorsa corrisponde ad un criterio indicato negli headers \textit{If-Modified-Since}, \textit{If-Unmodified-Since}, \textit{If-Match}, \textit{If-None-Match} o \textit{If-Range}
+    \item \textit{Parziale}: risorsa richiesta è una sottoparte di una risorsa memorizzata, con l’utilizzo dei campi \textit{Range}
+\end{itemize}
+\subsubsection{HEAD}
+Identico al metodo \textit{GET}, eccetto il fatto che il server non deve ritornare il corpo del messaggio, ma gli header inerenti all’entità richiesta\footnote{Usato per scopi di controllo e debugging.}.\newline
+Si tratta di un metodo \textit{sicuro} ed \textit{idempotente}, usato per verificare:
+\begin{itemize}
+    \item \textit{Validità URL}: se la risorsa esiste ed è di lunghezza non nulla
+    \item \textit{Accessibilità URL}: se la risorsa è accessibile presso il server e non sono richieste procedure di autenticazione
+    \item \textit{Coerenza di cache URL}: se la risorsa non è stata modificata rispetto a quella in cache
+\end{itemize}
+\subsubsection{OPTIONS}
+Rappresenta una richiesta di informazioni inerenti alle opzioni\footnote{Riferite alla risorsa da utilizzare o alle capacità del server.} di comunicazione disponibili sul canale.
+\subsubsection{POST}
+Metodo né sicuro, né idempotente e permette di trasmettere informazioni dal client al server.\newline
+Il server può rispondere in tre modi differenti:
+\begin{center}
+    \begin{tabular}{c|c}
+        200 & OK\\
+        \hline
+        201 & Created\\
+        \hline
+        204 & No content\\
+    \end{tabular}
+\end{center}
+\subsubsection{PUT}
+Serve per allocare nuove risorse sul server, passategli dal client.\newline
+Le nuove risorse sono memorizzate in relazione al URL: se una risorsa già esiste in corrispondenza all’URL specificato, la nuova risorsa verrà considerata come un aggiornamento della prima.
+\subsubsection{TRACE}
+Indica la richiesta di alcuni dati sul canale per testare e diagnosticare informazioni. Il ricevente può essere sia il server originale che il primo proxy o gateway sul canale.
+\subsection{Connessioni}
+La transazione HTTP è composta da uno scambio di richiesta e risposta: il client apre una connessione TCP separata per ogni risorsa richiesta\footnote{La connessione TCP è una connessione non persistente e consente la concorrenza massima tra le varie richieste HTTP}.
+\begin{enumerate}
+    \item Client apre la connessione TCP con il server
+    \item Client invia il messaggio di richiesta HTTP sulla connessione
+    \item Server invia il messaggio di risposta HTTP sulla connessione
+    \item Connessione TCP viene chiusa
+\end{enumerate}
+\subsubsection{Problemi}
+I problemi riscontrati sono:
+\begin{itemize}
+    \item \textit{Overhead} per l’instaurazione ed abbattimento della connessione TCP
+    \begin{itemize}
+        \item Per ogni trasferimento di risposta, 2 round trip time (RTT) in più
+        \setlength\parindent{2em}\par
+        \emph{es: per una risorsa Web che richiede 10 segmenti, sono trasmessi 17 segmenti, di cui 7 (3+4) di overhead.}
+        \item \textit{Overhead} sul SO per allocare risorse per ogni connessione
+    \end{itemize}
+    \item \textit{Overhead} per il meccanismo \textit{slow start} del TCP.
+    \setlength\parindent{2em}\par
+\end{itemize}
+Gli approcci proposti per risolvere i problemi:
+\begin{itemize}
+    \item Connessioni TCP \textit{persistenti} (HTTP/1.1)
+    \item Connessioni multiple in parallelo: apertura simultanea di più connessioni TCP, il cui vantaggio è l’apparente riduzione del tempo di latenza percepito dall’utente.\par
+    Problemi:
+    \begin{itemize}
+        \item Aumento congestione sulla rete
+        \item Server serve un minor numero di client diversi contemporaneamente
+        \item Richieste di pagine interrotte dall’utente
+        \item Non garantita la riduzione della latenza: ogni richiesta è indipendente dalle altre
+    \end{itemize}
+    \item Nuovi metodi per ottenere risorse multiple sulla stessa connessione
+\end{itemize}
+\subsubsection{Caching}
+Il caching lato server riduce i tempi di processamento della risposta e del carico sui server, mentre quello lato client riduce il carico di rete ed in parte il carico sui server.\newline
+Nel protocollo HTTP/1.0 vi sono tre differenti headers che riguardano tale tecnica:
+\begin{itemize}
+    \item \textit{Expires}: server specifica la scadenza della risorsa
+    \item \textit{If-Modified-Since}: client o proxy richiede la risorsa solo se modificata dopo la data indicata nella richiesta
+    \item \textit{Pragma}: no-cache: client indica ai proxy di accettare solo la risposta del server
+\end{itemize}
+\subsection{HTTPS}
+La differenza tra HTTP ed HTTPS deriva dal diverso modo in cui trattano la sicurezza della comunicazione, in termini di autenticazione degli attori coinvolti e di protezione da eventuali intrusioni esterne alla comunicazione.\newline
+HTTPS è l’acronimo di \textit{Hypertext Transfer Protocol Secure} (noto anche come \textit{HTTPS su TLS} o \textit{HTTP su SSL}), cioè protocollo di trasferimento ipertesto sicuro.\newline
+Anch’esso utilizza protocollo TCP per inviare e ricevere pacchetti di dati, ma lo fa tramite la porta \textit{443}, all’interno di una connessione crittografata ds SSL, \textit{Secure Sockets Layer}\footnote{Più recentemente è stato introdotto TLS, \textit{Transport Layer Security}.}.
+\pagebreak
+\section{HTTP/1.1 Protocol}
+\subsection{Problemi HTTP/1.0}
+I principali problemi riscontrati dall'utilizzo del protocollo HTTP/1.0 sono:
+\begin{itemize}
+    \item Lentezza e congestione nelle connessioni
+    \item Limitatezza nel numero di indirizzi IP
+    \item Limiti nel meccanismo di autenticazione
+    \item Limiti nel controllo dei meccanismi di caching
+\end{itemize}
+\subsection{Novità}
+Le principali novità introdotte dalla versione successiva sono:
+\begin{itemize}
+    \item Meccanismo \textit{hop-by-hop}
+    \item Connessioni persistenti e \textit{pipelining}
+    \item Hosting virtuale\footnote{Ad uno stesso IP possono corrispondere nomi diversi e server diversi e rende necessario introdurre header di richiesta \textit{Host} che specifica nome e la porta del server.}
+    \item Autenticazione crittografata \textit{digest}
+    \item Nuovi metodi di accesso\footnote{Aggiornamento delle risorse sul server e diagnostica.}
+    \item Miglioramento meccanismi di \textit{caching}
+    \begin{itemize}
+        \item Gestione molto più sofisticata delle cache
+        \item Maggiore accuratezza nella specifica validità
+        \item Header \textit{Cache-Control} per direttive di caching
+    \end{itemize}
+    \item \textit{Chunked encoding}\footnote{La risposta può essere inviata al client suddivisa in sottoparti.}
+\end{itemize}
+\subsection{Header Fields}
+\begin{center}
+    \begin{longtable}{c|c|c|c}\footnote{In \textcolor{red}{rosso} le novità derivate dall’utilizzo del nuovo protocollo.}
+        \textbf{Header generale} & \textbf{Header di entità} & \textbf{Header di richiesta} & \textbf{Header di risposta}\\
+        \hline
+        Date & Allow & Authorization & Location\\
+        \hline
+        Pragma & Content-Encoding & From & Server\\
+        \hline
+        \textcolor{red}{Cache-Control} & Content-Length & Referer & WWW-Authenticate\\
+        \hline
+        \textcolor{red}{Connection} & Content-Type & User-Agent & \textcolor{red}{Proxy-Authenticate}\\
+        \hline
+        \textcolor{red}{Trailer} & Expires & If-Modified-Since & \textcolor{red}{Retry-After}\\
+        \hline
+        \textcolor{red}{Transfer-Encoding} & Last-Modified & \textcolor{red}{Accept} & \textcolor{red}{Accept-Ranges}\\
+        \hline
+        \textcolor{red}{Upgrade} & \textcolor{red}{Content-Language} & \textcolor{red}{Accept-Charset} & \textcolor{red}{Age}\\
+        \hline
+        \textcolor{red}{Via} & \textcolor{red}{Content-Location} & \textcolor{red}{Accept-Encoding} & \textcolor{red}{ETag}\\
+        \hline
+        \textcolor{red}{Warning} & \textcolor{red}{Content-MD5} & \textcolor{red}{Accept-Language} & \textcolor{red}{Vary}\\
+        \hline
+        & \textcolor{red}{Content-Range} & \textcolor{red}{TE} &\\
+        \hline
+        & & \textcolor{red}{Proxy-Authorization} &\\
+        \hline
+        & & \textcolor{red}{If-Match} &\\
+        \hline
+        & & \textcolor{red}{If-None-Match} &\\
+        \hline
+        & & \textcolor{red}{If-Range} &\\
+        \hline
+        & & \textcolor{red}{If-Unmodified-Since} &\\
+        \hline
+        & & \textcolor{red}{Expect} &\\
+        \hline
+        & & \textcolor{red}{Host} &\\
+        \hline
+        & & \textcolor{red}{Max-Forwards} &\\
+        \hline
+        & & \textcolor{red}{Range} &
+    \end{longtable}
+\end{center}
+\subsection{Connessioni}
+Introduzione di connessioni \textit{persistenti} e \textit{pipelining} e della possibilità di trasferire coppie multiple di richiesta-risposta in una stessa connessione TCP.
+\subsubsection{Vantaggi}
+\begin{itemize}
+    \item Riduzione dei costi (instaurazione ed abbattimento) delle connessioni TCP: 3-way handshake del solo per instaurare la connessione iniziale
+    \item Riduzione della latenza: aumenta la dimensione della finestra di congestione del TCP
+    \item Controllo di congestione a regime
+    \item Migliore gestione degli errori
+\end{itemize}
+\subsubsection{Problemi}
+\begin{itemize}
+    \item Concorrenza minore
+    \item Quando chiudere la connessione TCP
+    \begin{itemize}
+        \item Può essere aperta sia dal client che dal server
+        \item Il server può chiudere la connessione
+        \begin{itemize}
+            \item Allo scadere di un timeout, applicato sul tempo totale di connessione o sul tempo di inattività di una connessione
+            \item Allo scadere di un numero massimo di richieste da servire sulla stessa connessione
+        \end{itemize}
+    \end{itemize}
+\end{itemize}
+\subsection{Pipeling}
+Tramissione di più richieste senza attendere l’arrivo della risposta alle richieste precedenti. Le risposte devono essere fornite dal server nello stesso ordine in cui sono state fatte le richieste.
+\begin{itemize}
+    \item HTTP non fornisce un meccanismo di riordinamento specifico
+    \item Il server può processare le richieste in un ordine differente da quello di ricezione
+\end{itemize}
+Tale tecnica porta ad una riduzione del tempo di latenza ed ottimizzazione del traffico di rete, in particolare per richieste che riguardano risorse molto diverse per dimensioni o tempi di elaborazione.
+\subsection{Caching}
+\begin{itemize}
+    \item Header generale \textit{Cache-Control} per permettere a client e server di specificare direttive per il caching
+    \item Header di entità \textit{ETag} per identificare univocamente la versione di una risorsa
+    \item Header di risposta \textit{Vary} per elencare un insieme di header di richiesta da usarsi per selezionare la versione appropriata in una cache
+    \item Header \textit{Via} per conoscere la catena proxy tra client e server
+\end{itemize}
+\pagebreak
+\section{HTTP/2 Protocol}
+\subsection{Introduzione}
+L’obiettivo principale della ricerca e sviluppo di una nuova versione di HTTP è incentrato su tre qualità differenti:
+\begin{itemize}
+    \item Semplicità
+    \item Alte prestazioni
+    \item Robustezza
+\end{itemize}
+Questi obiettivi vengono raggiunti introducendo funzionalità che riducono la latenza nell’elaborazione delle richieste dei browser con le seguenti tecniche:
+\begin{itemize}
+    \item Multiplexing
+    \item Compressione
+    \item Prioritizzazione delle richieste
+    \item Push del server
+\end{itemize}
+I meccanismi come il controllo del flusso, l’aggiornamento e la gestione degli errori funzionano come miglioramenti del protocollo HTTP.\newline
+Il sistema collettivo consente ai server di rispondere in maniera efficiente con più contenuti di quelli originariamente richiesti di client, eliminando l’intervento dell’utente per chiedere continuamente informazioni, fino a quando il sito web non viene caricato completamente sul browser.\newline
+Un’efficiente compressione dei file header HTTP riduce al minimo l’overhead del protocollo e migliora le prestazioni ad ogni richiesta del browser e risposta del server.\newline
+Le modifiche ad HTTP/2 sono progettate per mantenere l’interoperabilità e la compatibilità con HTTP/1.1.
+\subsection{Problemi di HTTP/1.1}
+HTTP/1.1 era limitato all’elaborazione di una sola richiesta in sospeso per connessione TCP costringendo i browser ad utilizzare più connessioni TCP per elaborare più richieste contemporaneamente.\newline
+L’utilizzo di un numero eccessivo di connessioni TCP in parallelo porta ad una congestione di TCP che provoca un eccessivo utilizzo delle risorse di rete: i browser che utilizzano connessioni multiple per elaborare richieste aggiuntive occupano una quantità maggiore delle risorse di rete disponibili, riducendo quindi le prestazioni della reti per altri utenti.\newline
+L’emissione di più richieste dal browser provoca anche la duplicazione dei dati sui cavi di trasmissione dei dati, che a loro volta richiedono protocolli aggiuntivi per estrarre, in corrispondenza dei nodi finale, le informazioni desiderate prive di errori.\newline
+L’uso inefficace delle connessioni TCP sottostanti con HTTP/1.1 conduce anche ad una scarsa priorità delle risorse, causando un degrado esponenziale delle prestazioni man mano che le applicazioni web crescono, in termini di complessità, funzionalità e portata.
+\subsection{Novità HTTP/2}
+\subsubsection{Flussi Multiplex}
+La sequenza bidirezionale dei frame in formato di testo inviati tramite il protocollo HTTP/2 e scambiati tra il server ed il client è nota come \textit{stream}.\newline
+Le versioni precedenti del protocollo HTTP erano in grado di trasmettere solo un flusso alla volta, con un certo ritardo per ciascuna trasmissione del flusso. La ricezione di grandi quantità di contenuti multimediali tramite flussi individuali inviati uno ad uno è inefficiente, oltre che dispendiosa, in termini di risorse. Le modifiche introdotte con HTTP/2 hanno contribuito a stabilire un nuovo livello di \textit{framing binario} per risolvere problemi di tale genere.\newline
+Questo livello consente a client e server di disintegrare il payload HTTP in una piccola sequenza di frame, indipendente e gestibile, la quale verrà poi riassemblata all’altra estremità.\newline
+I formati di \textit{frame binari} consentono lo scambio di sequenze bidirezionali indipendenti multiple, aperte contemporaneamente, senza latenza fra flussi successivi.\newline
+I vantaggi che ne derivano sono i seguenti:
+\begin{itemize}
+    \item Richieste e risposte multiple in parallelo non si bloccano a vicenda
+    \item Una singola connessione TCP viene utilizzata per garantire un utilizzo efficace delle risorse di rete, nonostante la trasmissione di più flussi di dati
+    \item Non è necessario applicare hack di ottimizzazione, come sprite di immagini, concatenazione e condivisione del dominio, che compromettono altre aree delle prestazioni della rete
+    \item Latenza ridotta, prestazioni web più veloci, posizionamento nei motori di ricerca migliore
+\end{itemize}\bigbreak
+\noindent Con tale funzionalità, i pacchetti, divisi all'estremità di ricezione e presentati come flussi di dati individuali, provenienti da più flussi vengono essenzialmente mixati e trasmessi su una singola connessione TCP.
+\subsubsection{Server Push}
+Tale funzionalità consente al server di inviare al client ulteriori informazioni memorizzabili nella cache che non sono richieste, ma sono previste nelle richieste future.\newline
+Tale meccanismo consente di salvare un round trip di richiesta-risposta e riduce la latenza delle rete. Le conseguenze a lungo termine sono incentrate sulla capacità dei server di identificare possibili risorse che possano essere spinte, ma che il client in realtà non desidera.\newline
+L’implementazione di HTTP/2 presenta prestazioni significative per le risorse push ed i seguenti vantaggi:
+\begin{itemize}
+    \setlength{\itemindent}{2em}
+    \item Client salva le risorse nelle cache
+    \item Client può utilizzare queste risorse memorizzate nella cache su pagine diverse
+    \item Client può rifiutare le risorse inviate per mantenere una repository efficace o disabilitare del tutto Server Push
+    \item Client può anche limitare il numero di flussi push multiplexing contemporaneamente
+    \item Server può eseguire il multiplexing delle risorse inviate insieme alle informazioni richieste all’interno della stessa connessione TCP
+    \item Server può dare priorità alle risorse inviate
+\end{itemize}
+Sono presenti funzionalità simili con tecniche non ottimali, come le risposte del server \textit{Inline to Push}, mentre \textit{Server Push} presenta una soluzione ottimale a livello di protocollo.
+\subsubsection{Protocolli Binari}
+HTTP/1.x elaborava i comandi di testo per completare i cicli richiesta-risposta, mentre la versione successiva sfrutta comandi binari per eseguire le stesse attività.\newline
+Questo attributo riduce le complicazioni con l’inquadramento e semplifica l’implementazione di comandi che sono stati mixati in modo confuso, a causa di comandi contenenti testo e spazi opzionali.\newline
+Nonostante i file binari siano più complessi da leggere rispetto ai comandi di testo, è più facile per la rete generare ed analizzare i frame disponibile in binario, anche se la semantica effettiva rimane invariata. I browser che utilizzano HTTP/2 convertiranno gli stessi comandi di testo in binari prima di trasmetterli sulla rete; il livello di framing binario non è retrocompatibile con client e server HTTP/1.x.\bigbreak
+\noindent I vantaggi della nuova versione del protocollo sono i seguenti:
+\begin{itemize}
+    \item Basso overhead nei dati di analisi
+    \item Meno incline agli errori
+    \item Impronta di rete più leggera
+    \item Utilizzo efficace delle risorse di rete
+    \item Eliminazione problemi di sicurezza, come gli attacchi di response splitting
+    \item Rappresentazione compatta dei comandi, per una facile elaborazione ed implementazione
+    \item Efficiente e robusto in termini di elaborazione dei dati tra client e server
+    \item Riduzione latenza di rete e miglioramento del throughput
+\end{itemize}
+\subsubsection{Proprietà Flussi}
+L’implementazione di HTTP/2 consente al client di fornire la preferenza per determinati flussi di dati.\newline
+Sebbene il server non sia tenuto a seguire queste istruzioni provenienti dal client, il meccanismo consente al server di ottimizzare l’allocazione delle risorse di rete, in base ai requisiti dell'utente finale.\newline
+Il server ha la capacità di portare all’arrivo simultaneo di richieste del server che differiscono effettivamente in termini di priorità dal punto di vista dell’utente finale. Il blocco delle richieste di elaborazione del flusso di dati su base casuale compromette efficienza ed esperienza dell’utente finale.\bigbreak
+\noindent Allo stesso tempo, un meccanismo di prioritizzazione dei flussi intelligente, presenta i seguenti vantaggi:
+\begin{itemize}
+    \item Utilizzo efficace delle risorse di rete
+    \item Riduzione tempi di consegna delle richieste del contenuto primario
+    \item Miglioramento velocità di caricamento della pagina e dell’esperienza dell’utente finale
+    \item Comunicazione dati ottimizzata tra client e server
+    \item Ridotto effetto negativo della latenza della rete
+\end{itemize}
+\subsubsection{Compressione Header con Stato}
+Il protocollo HTTP è \textit{statless}, il che significa che ogni richiesta del client deve includere tutte le informazioni necessarie al server per eseguire l’operazione desiderata: tale meccanismo fa sì che i flussi di dati trasportino più frame ripetitivi di informazioni, causando un consumo inutile di risorse di rete limitate.\newline
+L’implementazione di HTTP/2 risolve questi problemi data la capacità di comprimere un gran numero di frame di intestazione ridondanti, utilizzando le specifiche \textit{HPACK} come approccio semplice e sicuro alla compressione delle intestazioni.\newline
+Sia il client che il server mantengono un elenco di intestazioni utilizzate nelle precedenti richieste client-server.\newline
+HPACK comprime il valore individuale di ciascun header prima che venga trasferito sul server, il quale cerca le informazioni codificate nell’elenco dei valore dell’header trasferiti in precedenza, per ricostruire le informazioni dell’header complete.\bigbreak
+\noindent Tale tecnica porta i seguenti vantaggi:
+\begin{itemize}
+    \item Priorità esclusiva del flusso
+    \item Utilizzo efficace dei meccanismi multiplexing
+    \item Ridotto sovraccarico di risorse
+    \item Codifica le intestazioi di grandi dimensioni ed utilizzate di frequente   
+\end{itemize}
+\subsection{Similitudini tra HTTP/1.x e SPDY}
+La semantica delle applicazioni sottostanti al protocollo HTTP rimane la stessa nell’ultima iterazione dell’HTTP/2. Questo si basa su SPDY.
+\begin{center}
+    \begin{tabular}{p{12em}|p{12em}|p{12em}}
+        \textbf{HTTP/1.x} & \textbf{SPDY} & \textbf{HTTP/2}\\
+        \hline
+        SSL non richiesto, ma raccomandato & SSL richiesto & SSL non richiesto, ma raccomandato\\
+        \hline
+        Crittografia lenta & Crittografia veloce & Crittografia ancora più veloce\\
+        \hline
+        Una richiesta client-server per ogni connessione TCP & Richiesta client-server multipla per ogni connessione TCP. Si verifica su un singolo host alla volta & Multi-host multiplexing. Si verifica su più host in un singolo istante\\
+        \hline
+        Nessuna compressione dell’header & Introdotta la compressione dell’header & Compressione dell’header, attraverso algoritmi che migliorano le prestazioni e la sicurezza\\
+        \hline
+        Nessuna priorità di flusso & Introdotta la priorità di flusso & Migliori meccanismi di priorità di flusso
+    \end{tabular}
+\end{center}
+\subsection{HTTP/2 con HTTPS}
+Il supporto di HTTP/2 dei browser include la crittografia HTTPS e completa di fatto le prestazioni generali di sicurezza delle implementazioni HTTPS.\newline Caratteristiche come il minor numero di handshake TLS, il basso consumo di risorse sia sul lato client che sul lato server e le migliori capacità di utilizzo delle sessioni web esistenti, eliminando al contempo le vulnerabilità associate a HTTP/1.x presentano HTTP/2 come fattore chiave per la sicurezza in ambiti di rete sensibili.
+\subsubsection{Vantaggi}
+Il web sta diventando sempre più lento man mano che si popola di volumi crescenti di contenuti multimediali irrilevanti.\newline
+Sia per le aziende online, che per le persone online, per accedere più velocemente a contenuti web migliori , vengono sviluppate modifiche HTTP/2 per migliorare l’efficienza nella comunicazione client-server dei dati.
+\subsubsection{Prestazioni Web}
+Il confronto tra i benchmark delle performance di HTTPS, SPDY, HTTP/2 dimostrano i miglioramenti nelle prestazioni di HTTP/2, rispetto sia ai predecessori che alle alternative.\newline
+La capacità del protocollo di inviare e ricevere più dati per ogni ciclo di comunicazione client-server non è un hack di ottimizzazione, ma un reale e pratico vantaggio di HTTP/2.\newline
+Tecnologie come il multiplexing creano uno spazio aggiuntivo per trasportare e trasmettere più dati contemporaneamente.
+\subsubsection{Prestazioni Web Mobile}
+HTTP/2 è stato progettato nel contesto delle attuali tendenza di utilizzo del web: multiplexing e compressione dell’header funzionano bene per ridurre la latenza di accesso ai servizi internet su reti dati mobile, che offrono una larghezza di banda limitata.
+\subsubsection{Internet più economico}
+HTTP/2 permette di aumentare throughput e di migliorare l’efficienza della comunicazione dati, consentendo ai fornitori di servizi web di ridurre i costi operativi, mantenendo gli standard di Internet ad alta velocità.
+\subsubsection{Sicurezza}
+HTTP/2 contiene comandi in binario e consente di comprimere i metadati nell’header, seguendo un approccio \textit{Security by Obscurity} per proteggere i dati sensibili trasmessi tra client e server.\newline
+Tale protocollo supporta, in maniera completa, la crittografia e richiede una versione migliorata di \textit{Transport Layer Security} (TLS 1.2) per una migliore protezione dei dati.\bigbreak
+\
+Altri minori vantaggi sono, per motivi simili appena citati, Vantaggi SEO di HTTP2, Innovazione, Esperienza Mobile migliorata e ricca di contenuti ed un raggio d’azione esteso.
+\end{document}

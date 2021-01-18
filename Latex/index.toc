@@ -1,0 +1,53 @@
+\babel@toc {italian}{}
+\babel@toc {italian}{}
+\contentsline {section}{\numberline {1}HTTP Protocol}{3}{}%
+\contentsline {subsection}{\numberline {1.1}Introduzione}{3}{}%
+\contentsline {subsubsection}{\numberline {1.1.1}Definizione di Protocollo}{3}{}%
+\contentsline {subsubsection}{\numberline {1.1.2}World Wide Web}{3}{}%
+\contentsline {subsubsection}{\numberline {1.1.3}Uniform Resource Locator}{3}{}%
+\contentsline {subsection}{\numberline {1.2}Definizione}{4}{}%
+\contentsline {subsubsection}{\numberline {1.2.1}Caratteristiche}{4}{}%
+\contentsline {subsection}{\numberline {1.3}Request}{4}{}%
+\contentsline {subsubsection}{\numberline {1.3.1}Request Line}{4}{}%
+\contentsline {subsubsection}{\numberline {1.3.2}Header Lines}{5}{}%
+\contentsline {subsection}{\numberline {1.4}Response}{7}{}%
+\contentsline {subsubsection}{\numberline {1.4.1}Status Line}{7}{}%
+\contentsline {subsubsection}{\numberline {1.4.2}Header Lines}{8}{}%
+\contentsline {subsection}{\numberline {1.5}Definizione Metodi}{9}{}%
+\contentsline {subsubsection}{\numberline {1.5.1}CONNECT}{9}{}%
+\contentsline {subsubsection}{\numberline {1.5.2}DELETE}{9}{}%
+\contentsline {subsubsection}{\numberline {1.5.3}GET}{9}{}%
+\contentsline {subsubsection}{\numberline {1.5.4}HEAD}{10}{}%
+\contentsline {subsubsection}{\numberline {1.5.5}OPTIONS}{10}{}%
+\contentsline {subsubsection}{\numberline {1.5.6}POST}{10}{}%
+\contentsline {subsubsection}{\numberline {1.5.7}PUT}{10}{}%
+\contentsline {subsubsection}{\numberline {1.5.8}TRACE}{10}{}%
+\contentsline {subsection}{\numberline {1.6}Connessioni}{11}{}%
+\contentsline {subsubsection}{\numberline {1.6.1}Problemi}{11}{}%
+\contentsline {subsubsection}{\numberline {1.6.2}Caching}{12}{}%
+\contentsline {subsection}{\numberline {1.7}HTTPS}{12}{}%
+\contentsline {section}{\numberline {2}HTTP/1.1 Protocol}{13}{}%
+\contentsline {subsection}{\numberline {2.1}Problemi HTTP/1.0}{13}{}%
+\contentsline {subsection}{\numberline {2.2}Novità}{13}{}%
+\contentsline {subsection}{\numberline {2.3}Header Fields}{13}{}%
+\contentsline {subsection}{\numberline {2.4}Connessioni}{14}{}%
+\contentsline {subsubsection}{\numberline {2.4.1}Vantaggi}{14}{}%
+\contentsline {subsubsection}{\numberline {2.4.2}Problemi}{14}{}%
+\contentsline {subsection}{\numberline {2.5}Pipeling}{15}{}%
+\contentsline {subsection}{\numberline {2.6}Caching}{15}{}%
+\contentsline {section}{\numberline {3}HTTP/2 Protocol}{16}{}%
+\contentsline {subsection}{\numberline {3.1}Introduzione}{16}{}%
+\contentsline {subsection}{\numberline {3.2}Problemi di HTTP/1.1}{16}{}%
+\contentsline {subsection}{\numberline {3.3}Novità HTTP/2}{17}{}%
+\contentsline {subsubsection}{\numberline {3.3.1}Flussi Multiplex}{17}{}%
+\contentsline {subsubsection}{\numberline {3.3.2}Server Push}{18}{}%
+\contentsline {subsubsection}{\numberline {3.3.3}Protocolli Binari}{18}{}%
+\contentsline {subsubsection}{\numberline {3.3.4}Proprietà Flussi}{19}{}%
+\contentsline {subsubsection}{\numberline {3.3.5}Compressione Header con Stato}{20}{}%
+\contentsline {subsection}{\numberline {3.4}Similitudini tra HTTP/1.x e SPDY}{20}{}%
+\contentsline {subsection}{\numberline {3.5}HTTP/2 con HTTPS}{21}{}%
+\contentsline {subsubsection}{\numberline {3.5.1}Vantaggi}{21}{}%
+\contentsline {subsubsection}{\numberline {3.5.2}Prestazioni Web}{21}{}%
+\contentsline {subsubsection}{\numberline {3.5.3}Prestazioni Web Mobile}{22}{}%
+\contentsline {subsubsection}{\numberline {3.5.4}Internet più economico}{22}{}%
+\contentsline {subsubsection}{\numberline {3.5.5}Sicurezza}{22}{}%
